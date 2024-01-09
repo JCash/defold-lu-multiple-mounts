@@ -5,7 +5,12 @@ local function update_mount_state(self)
 	self.cb_zip_level1 = false
 	self.cb_zip_level2 = false
 	self.cb_zip_level3 = false
-	
+
+	if not liveupdate then
+		local n = gui.get_node("mounts_txt")
+		gui.set_text(n, "LIVEUPDATE IS DISABLED FROM THE EDITOR")
+		return
+	end
 	local mounts = liveupdate.get_mounts()
 	pprint("MOUNTS", mounts)
 	
@@ -14,7 +19,7 @@ local function update_mount_state(self)
 		local mount_text = string.format("%2d %s %s\n", mount.priority, mount.name, mount.uri)
 		text = text .. mount_text
 		
-		if mount.name == 'common' then self.cb_zip_common = true end
+		if mount.name == 'liveupdate' then self.cb_zip_common = true end
 		if mount.name == 'level1' then self.cb_zip_level1 = true end
 		if mount.name == 'level2' then self.cb_zip_level2 = true end
 		if mount.name == 'level3' then self.cb_zip_level3 = true end
@@ -42,6 +47,11 @@ function on_message(self, message_id, message, sender)
 end
 
 function on_input(self, action_id, action)
+
+	if not liveupdate then
+		return
+	end
+	
 	dirtylarry:button("load_level1", action_id, action, function ()
 		msg.post("go", "load_level", {name = "level1"})
 	end)
@@ -65,7 +75,7 @@ function on_input(self, action_id, action)
 	local mount = true
 	if cb_zip_common_prev ~= self.cb_zip_common then
 		mount = self.cb_zip_common
-		mount_info = {priority = 5, name = "common"}
+		mount_info = {priority = 5, name = "liveupdate"}
 	end
 	if cb_zip_level1_prev ~= self.cb_zip_level1 then
 		mount = self.cb_zip_level1

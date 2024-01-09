@@ -42,21 +42,24 @@ local function resource_store_response(self, hexdigest, status)
 	end
 end
 
-local manifest_errors = {
-	[resource.LIVEUPDATE_BUNDLED_RESOURCE_MISMATCH] = "LIVEUPDATE_BUNDLED_RESOURCE_MISMATCH",
-	[resource.LIVEUPDATE_ENGINE_VERSION_MISMATCH] = "LIVEUPDATE_ENGINE_VERSION_MISMATCH",
-	[resource.LIVEUPDATE_FORMAT_ERROR] = "LIVEUPDATE_FORMAT_ERROR",
-	[resource.LIVEUPDATE_INVALID_RESOURCE] = "LIVEUPDATE_INVALID_RESOURCE",
-	[resource.LIVEUPDATE_SCHEME_MISMATCH] = "LIVEUPDATE_SCHEME_MISMATCH",
-	[resource.LIVEUPDATE_SIGNATURE_MISMATCH] = "LIVEUPDATE_SIGNATURE_MISMATCH",
-	[resource.LIVEUPDATE_VERSION_MISMATCH] = "LIVEUPDATE_VERSION_MISMATCH",
-}
+local function get_status_string(status)
+	local manifest_errors = {
+		[liveupdate.LIVEUPDATE_BUNDLED_RESOURCE_MISMATCH] = "LIVEUPDATE_BUNDLED_RESOURCE_MISMATCH",
+		[liveupdate.LIVEUPDATE_ENGINE_VERSION_MISMATCH] = "LIVEUPDATE_ENGINE_VERSION_MISMATCH",
+		[liveupdate.LIVEUPDATE_FORMAT_ERROR] = "LIVEUPDATE_FORMAT_ERROR",
+		[liveupdate.LIVEUPDATE_INVALID_RESOURCE] = "LIVEUPDATE_INVALID_RESOURCE",
+		[liveupdate.LIVEUPDATE_SCHEME_MISMATCH] = "LIVEUPDATE_SCHEME_MISMATCH",
+		[liveupdate.LIVEUPDATE_SIGNATURE_MISMATCH] = "LIVEUPDATE_SIGNATURE_MISMATCH",
+		[liveupdate.LIVEUPDATE_VERSION_MISMATCH] = "LIVEUPDATE_VERSION_MISMATCH",
+	}
+	return manifest_errors[status]
+end
 
 local function store_manifest_cb(self, status)
 	if status == resource.LIVEUPDATE_OK then
 		print("Successfully stored manifest!")
 	else
-		print("Failed to store manifest, status: ", manifest_errors[status])
+		print("Failed to store manifest, status: ", get_status_string(status))
 	end
 end
 
@@ -67,7 +70,6 @@ function on_message(self, message_id, message, sender)
 		local level = message.name
 		local proxy = '#' .. level
 
-		print("Loading", proxy)
 		local missing_resources = collectionproxy.missing_resources(proxy)
 		if #missing_resources > 0 then
 			pprint("missing_resources")
@@ -112,16 +114,13 @@ function on_message(self, message_id, message, sender)
 			end)
 			--]]
 		else
-			pprint(message_id, message)
-			local PATH_TO_ARCHIVES = "/Users/mathiaswesterdahl/work/projects/users/mawe/defold-lu-multiple-mounts/build/zips"
-			liveupdate.add_mount(message.name, "zip:" .. PATH_TO_ARCHIVES .. "/defold.resourcepack_x86_64-macos_" .. message.name .. ".zip", message.priority, function(uri, path, status)
+			liveupdate.add_mount(message.name, "zip:" .. self.resource_dir .. "/" .. message.name .. ".zip", message.priority, function(uri, path, status)
 				pprint(uri, path, status)
 				msg.post(sender, "update_state")
 			end)
 		end
 
 	elseif message_id == hash("unmount_zip") then
-		pprint(message_id, message)
 		liveupdate.remove_mount(message.name)
 		msg.post(sender, "update_state")
 

@@ -3,17 +3,22 @@
 PLATFORM=x86_64-macos
 BUILDDIR=./build
 BUNDLEDIR=./bundle_new
+ZIPDIR=${BUILDDIR}/big_lu_archive
 
-ZIPDIR=$(realpath ${BUILDDIR}/zips)
+mkdir -p ${ZIPDIR}
+# The zip-filepath specified in the liveupdate.settings
+ZIPDIR=$(realpath ${ZIPDIR})
+
+echo "MAWE ZIPDIR=${ZIPDIR}"
 
 echo "[test]" > ${BUILDDIR}/test.ini
 echo "resource_dir = ${ZIPDIR}" >> ${BUILDDIR}/test.ini
+echo "enabled = 1" >> ${BUILDDIR}/test.ini
 
 #java -jar ./bob.jar resolve
 java -jar ${BUILDDIR}/bob.jar --settings=${BUILDDIR}/test.ini --platform=${PLATFORM} --architectures=${PLATFORM} --variant=debug clean build --archive --liveupdate yes bundle -bo ${BUNDLEDIR}
 
-DMANIFEST=${BUNDLEDIR}/LiveUpdateMultipleArchives.app/Contents/Resources/game.dmanifest
-mkdir -p ./build/tmp
-mkdir -p ./build/zips
-
-python ./make_packages.py ${DMANIFEST}
+# rename all files in the export folder to the common name
+for name in ${ZIPDIR}/*.zip; do
+    mv -v ${name} ${ZIPDIR}/liveupdate.zip
+done

@@ -1,5 +1,5 @@
 [project]
-title = LiveUpdateMultipleArchives
+title = LiveUpdateMounts
 dependencies#0 = https://github.com/andsve/dirtylarry/archive/master.zip
 
 [bootstrap]
@@ -31,4 +31,3 @@ scale = 0.01
 
 [liveupdate]
 settings = /liveupdate.settings
-

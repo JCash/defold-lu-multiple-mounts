@@ -858,7 +858,7 @@ nodes {
 }
 nodes {
   position {
-    x: 970.0
+    x: 910.0
     y: 640.0
     z: 0.0
     w: 1.0
@@ -1057,7 +1057,7 @@ nodes {
   }
   type: TYPE_TEXT
   blend_mode: BLEND_MODE_ALPHA
-  text: "common.zip"
+  text: "liveupdate.zip"
   font: "larryfont"
   id: "cb_common/larrylabel"
   xanchor: XANCHOR_NONE
@@ -1133,7 +1133,7 @@ nodes {
   template: "/dirtylarry/checkbox_label.gui"
   template_node_child: false
   custom_type: 0
-  enabled: true
+  enabled: false
 }
 nodes {
   position {
@@ -1187,10 +1187,11 @@ nodes {
   clipping_visible: true
   clipping_inverted: false
   alpha: 1.0
+  overridden_fields: 45
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
   custom_type: 0
-  enabled: true
+  enabled: false
   visible: true
   material: ""
 }
@@ -1255,11 +1256,12 @@ nodes {
   shadow_alpha: 1.0
   overridden_fields: 5
   overridden_fields: 8
+  overridden_fields: 45
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
   custom_type: 0
-  enabled: true
+  enabled: false
   visible: true
   material: ""
 }
@@ -1303,7 +1305,7 @@ nodes {
   template: "/dirtylarry/checkbox_label.gui"
   template_node_child: false
   custom_type: 0
-  enabled: true
+  enabled: false
 }
 nodes {
   position {
@@ -1357,10 +1359,11 @@ nodes {
   clipping_visible: true
   clipping_inverted: false
   alpha: 1.0
+  overridden_fields: 45
   template_node_child: true
   size_mode: SIZE_MODE_MANUAL
   custom_type: 0
-  enabled: true
+  enabled: false
   visible: true
   material: ""
 }
@@ -1425,11 +1428,12 @@ nodes {
   shadow_alpha: 1.0
   overridden_fields: 5
   overridden_fields: 8
+  overridden_fields: 45
   template_node_child: true
   text_leading: 1.0
   text_tracking: 0.0
   custom_type: 0
-  enabled: true
+  enabled: false
   visible: true
   material: ""
 }
@@ -1473,7 +1477,7 @@ nodes {
   template: "/dirtylarry/checkbox_label.gui"
   template_node_child: false
   custom_type: 0
-  enabled: true
+  enabled: false
 }
 nodes {
   position {
@@ -1689,7 +1693,7 @@ nodes {
     w: 1.0
   }
   size {
-    x: 200.0
+    x: 1000.0
     y: 100.0
     z: 0.0
     w: 1.0
