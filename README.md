@@ -1,4 +1,4 @@
-# LiveUpdate example with multiple mounts
+# LiveUpdate example with a single mount
 
 This example shows how to add and remove a mount using `liveupdate.add_mount()` and `liveupdate.remove_mount()`.
 
