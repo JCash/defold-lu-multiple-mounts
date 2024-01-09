@@ -117,6 +117,7 @@ embedded_instances {
   "  type: \"collectionfactory\"\n"
   "  data: \"prototype: \\\"/main/common/common.collection\\\"\\n"
   "load_dynamically: true\\n"
+  "dynamic_prototype: false\\n"
   "\"\n"
   "  position {\n"
   "    x: 0.0\n"

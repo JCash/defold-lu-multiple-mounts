@@ -1,19 +1,26 @@
-# Welcome to Defold
+# LiveUpdate example with multiple mounts
 
-This project was created from the "desktop" project template. This means that the settings in ["game.project"](defold://open?path=/game.project) have been changed to be suitable for a desktop game:
+This example shows how to add and remove multiple mounts.
 
-- The screen size is set to 1280x720
-- Projection is set to Fixed Fit
-- macOS and Windows icons are set
-- Mouse clicks are bound to action "touch"
-- A simple script in a game object is set up to receive and react to input
+## Setup
 
-[Build and run](defold://build) to see it in action. You can of course alter these settings to fit your needs.
+_NOTE:_ Defold cannot currently create multiple archives at build time, so we have to configure this manually at this time.
 
-Check out [the documentation pages](https://defold.com/learn) for examples, tutorials, manuals and API docs.
+To generate the .zip files, we use the Protobuf files from our sdk to read/write the manifest files for each archive.
 
-If you run into trouble, help is available in [our forum](https://forum.defold.com).
+The packages themselves are defined in [](./make_packages.py), with a hardcoded list of files that should go into each .zip file.
 
-Happy Defolding!
+## Build
 
----
+* Download the python files from the sdk
+
+    $ ./setup.sh
+
+* Build the game, using the liveupdate settings.
+
+    $ ./build.sh
+
+_Note:_ It generates a big Live Update archive (.zip), which we won't use in this example.
+However, we'll use the base game archive.
+
+_Note:_ It also calls ./make_packages.py, to manually create a few .zip files, with corresponding .dmanifest files.

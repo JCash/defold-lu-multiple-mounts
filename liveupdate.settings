@@ -1,7 +1,6 @@
 [liveupdate]
 mode = Zip
-zip-filepath = ../test_bundles
-publickey = /Users/mawe/work/projects/users/mawe/LiveUpdateMultipleArchives/public.der
-privatekey = /Users/mawe/work/projects/users/mawe/LiveUpdateMultipleArchives/private.der
-supported-versions = "0.0.0", "1.3.4"
-
+zip-filepath = ./build/big_lu_archive
+_publickey = ~/LiveUpdateMultipleArchives/public.der
+_privatekey = ~/LiveUpdateMultipleArchives/private.der
+supported-versions = "0.0.0", "1.6.2"

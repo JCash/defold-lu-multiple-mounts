@@ -6,6 +6,16 @@
 import os, sys, shutil
 import binascii
 
+
+dynamo_home = os.environ.get('DYNAMO_HOME', None)
+if dynamo_home:
+    sys.path.insert(0, os.path.join(dynamo_home, "lib/python/"))
+    sys.path.insert(1, os.path.join(dynamo_home, "ext/lib/python"))
+else:
+    cwd=os.getcwd()
+    sys.path.insert(0, os.path.join(cwd, "build/defoldsdk/lib/python"))
+    sys.path.insert(1, os.path.join(cwd, "build/defoldsdk/ext/lib/python"))
+
 from google.protobuf import text_format
 import google.protobuf.message
 
@@ -95,13 +105,13 @@ level3 = [
   "/main/level3/level3.texturec",
   "/_generated_381894f48195a3ec.spritec",
   "/_generated_27496cc10a86d50c.goc",
+  "/_generated_2ff32b8a43cba211.goc",
   "/_generated_df771096bf38384b.spritec",
   "/main/level3/level3.scriptc",
   "/builtins/fonts/font-df.materialc",
   "/builtins/materials/sprite.vpc",
   "/builtins/fonts/font-df.vpc",
   "/builtins/materials/sprite.materialc",
-  "/_generated_18676589047b8e89.goc",
   "/_generated_dfc36d9e705954af.collectionfactoryc",
   "/main/common/common.collectionc",
   "/dirtylarry/larryfont.fontc",
@@ -109,6 +119,7 @@ level3 = [
   "/main/common/common.a.texturesetc",
   "/builtins/materials/sprite.fpc",
   "/builtins/fonts/font-df.fpc",
+  "/_generated_78599ff32cfb24ea.collectionfactoryc"
   ]
 
 common_file = 'defold.resourcepack_x86_64-macos_common.zip'
@@ -151,15 +162,61 @@ def create_manifest(manifest, files):
 
 def prune_resources(resources, expected_resources):
     kept = []
+    bundled_flag = 1  # 1=Bundled, 2=Excluded, 4=Encrypted, 8=COMPRESSED,
+    excluded_flag = 2
     for x in resources:
+        if 'builtins' in x.url:
+            print(x.url, x.flags)
+
         if x.url in expected_resources:
-            if x.flags == 2:
-                print("  KEPT", x.url)
+            # if x.flags & bundled_flag:
+            #     continue
+            if x.flags & excluded_flag:
                 kept.append(x)
     return kept
 
 def copy(src, tgt):
     shutil.copy2(src, tgt)
+    print("Copied", src, "->", tgt)
+
+def copy_resource(src, tgt, flags):
+    with open(src, 'rb') as f:
+        data = f.read()
+
+    # Input
+    # enum ResourceEntryFlag {
+    #     BUNDLED    = 1;
+    #     EXCLUDED   = 2;
+    #     ENCRYPTED  = 4;
+    #     COMPRESSED = 8;
+    # }
+
+    # Output
+    # enum EntryFlag
+    # {
+    #     ENTRY_FLAG_ENCRYPTED        = 1 << 0,
+    #     ENTRY_FLAG_COMPRESSED       = 1 << 1,
+    #     ENTRY_FLAG_LIVEUPDATE_DATA  = 1 << 2,
+    # };
+    # struct DM_ALIGNED(16) LiveUpdateResourceHeader {
+    #     uint32_t    m_Size;
+    #     uint8_t     m_Flags;        // See dmResourceArchive::EntryData / EntryFlag
+    #     uint8_t     m_Padding[11];
+    # };
+
+    out_flags = 1 << 2 # ENTRY_FLAG_LIVEUPDATE_DATA
+    if flags & 4: #encrypted
+        out_flags |= 1 << 0 # ENTRY_FLAG_ENCRYPTED
+    if flags & 8: #compressed
+        out_flags |= 1 << 1 # ENTRY_FLAG_COMPRESSED
+
+    import struct
+    header = struct.pack("<IBxxxxxxxxxxx", len(data), out_flags)
+
+    with open(tgt, 'wb') as f:
+        f.write(header)
+        f.write(data)
+
     print("Copied", src, "->", tgt)
 
 def create_zip(build_dir, resources, manifest_path, out_zip_path):
@@ -179,11 +236,16 @@ def create_zip(build_dir, resources, manifest_path, out_zip_path):
         if url[0] == '/':
             url = url[1:]
 
-        copy(os.path.join(build_dir, url), os.path.join(tmpdir, name))
+        copy_resource(os.path.join(build_dir, url), os.path.join(tmpdir, name), x.flags)
+        #copy(os.path.join(build_dir, url), os.path.join(tmpdir, name))
 
     zippath = os.path.abspath(out_zip_path)
     oldcwd = os.getcwd()
     os.chdir(tmpdir)
+
+    if os.path.exists(zippath):
+        os.unlink(zippath)
+
     try:
         os.system('zip %s *' % zippath)
         print("Wrote", zippath)
@@ -216,18 +278,29 @@ if __name__ == '__main__':
 
         print(name)
         kept_resources = prune_resources(manifestdata.resources, resources)
+
+        for x in kept_resources:
+            if x.flags & 8: # We're currently using uncompressed content
+                x.flags = x.flags & ~8
+            if x.flags & 4: # We're currently using unencrypted script files
+                x.flags = x.flags & ~4
+            if x.flags & 1: # If the excluded file for some reason also was "bundled" (e.g. form builtins)
+                x.flags = x.flags & ~1
+
+            print("  ", x.url_hash, x.url)
+
         manifestdata.resources.clear()
         manifestdata.resources.extend(kept_resources)
 
         manifest.data = manifestdata.SerializeToString()
 
-        out_manifest_path = "./tmp/defold.resourcepack_%s_%s.dmanifest" % (platform, name)
-        out_manifestdata_path = "./tmp/defold.resourcepack_%s_%s.dmanifestdata" % (platform, name)
+        out_manifest_path = "./build/tmp/defold.resourcepack_%s_%s.dmanifest" % (platform, name)
+        out_manifestdata_path = "./build/tmp/defold.resourcepack_%s_%s.dmanifestdata" % (platform, name)
         out_zip_path = "./build/zips/defold.resourcepack_%s_%s.zip" % (platform, name)
 
-        #print_dmanifest(manifest)
+        print_dmanifest(manifest)
         # print("data")
-        # print(manifest.data)
+        print(manifest.data)
 
         with open(out_manifest_path, 'wb') as f:
             f.write(manifest.SerializeToString())
