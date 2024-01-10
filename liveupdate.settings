@@ -1,6 +1,5 @@
 [liveupdate]
 mode = Zip
 zip-filepath = ./build/big_lu_archive
-_publickey = ~/LiveUpdateMultipleArchives/public.der
-_privatekey = ~/LiveUpdateMultipleArchives/private.der
 supported-versions = "0.0.0", "1.6.2"
+
