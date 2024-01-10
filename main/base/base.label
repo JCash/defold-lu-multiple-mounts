@@ -24,9 +24,9 @@ shadow {
 }
 leading: 1.0
 tracking: 0.0
-pivot: PIVOT_CENTER
+pivot: PIVOT_W
 blend_mode: BLEND_MODE_ALPHA
 line_break: false
-text: "Base"
+text: "Base Label"
 font: "/dirtylarry/larryfont.font"
 material: "/builtins/fonts/label-df.material"

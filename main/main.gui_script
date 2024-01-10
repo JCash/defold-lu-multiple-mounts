@@ -27,6 +27,14 @@ local function update_mount_state(self)
 
 	local n = gui.get_node("mounts_txt")
 	gui.set_text(n, text)
+
+	local custom_data = sys.load_resource("/custom.txt")
+	if not custom_data then
+		custom_data = "Failed to load /custom.txt"
+	end
+
+	n = gui.get_node("custom_txt")
+	gui.set_text(n, custom_data)
 end
 
 function init(self)
