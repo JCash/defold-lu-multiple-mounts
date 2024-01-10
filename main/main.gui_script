@@ -16,8 +16,19 @@ local function update_mount_state(self)
 	
 	local text = ''
 	for _,mount in ipairs(mounts) do
-		local mount_text = string.format("%2d %s %s\n", mount.priority, mount.name, mount.uri)
-		text = text .. mount_text
+		local mount_text = string.format("%s prio: %2d name: '%s' \n", mount.uri, mount.priority, mount.name)
+		local version_data = sys.load_resource("/version_" .. mount.name .. ".json")
+		
+		if version_data then
+			pprint("VERSION DATA", mount.name, version_data)
+			version_data = json.decode(version_data)
+		else
+			version_data = {version = "n/a", date = "n/a"}
+		end
+		local version_text = string.format("version: %s date: %s\n\n", version_data.version, version_data.date)
+		
+		text = text .. mount_text .. version_text
+
 		
 		if mount.name == 'liveupdate' then self.cb_zip_common = true end
 		if mount.name == 'level1' then self.cb_zip_level1 = true end
