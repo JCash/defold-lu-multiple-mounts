@@ -2,6 +2,8 @@
 
 This example shows how to add and remove a mount using `liveupdate.add_mount()` and `liveupdate.remove_mount()`.
 
+![](./liveupdate.png)
+
 ## Build
 
 Download the bob.jar

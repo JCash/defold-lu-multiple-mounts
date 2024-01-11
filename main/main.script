@@ -44,34 +44,18 @@ function on_message(self, message_id, message, sender)
 
 		local missing_resources = collectionproxy.missing_resources(proxy)
 		if #missing_resources > 0 then
-			pprint("missing_resources")
-			-- for _,x in ipairs(missing_resources) do
-			-- 	print("  ", x)
-			-- end
+			print("missing_resources, cannot load", proxy)
 		else
 			msg.post(proxy, "load")
 		end
 
-	elseif message_id == hash("attempt_load_resources") then
-		local missing_resources = collectionproxy.missing_resources("#proxy") -- <2>
-
-		-- initiate a download request for each of the missing resources that has not yet been tried.
-		for _,resource_hash in ipairs(missing_resources) do
-			msg.post("#", "attempt_download", { resource_hash = resource_hash})
-		end
-
-		self.resources_pending = #missing_resources -- <3>
-
-		-- if we're running from editor all resources are there from the start.
-		if self.resources_pending == 0 then
-			msg.post("#proxy", "load")
-		end
 	elseif message_id == hash("mount_zip") then
 		local zip_filename = message.name .. ".zip"
 		local download_path = sys.get_save_file("lu_example", zip_filename)
 		-- leaving as an excersize for the user
 		if self.http_url then
-			http.request(self.http_url .. "/" .. zip_filename, "GET", function(self, id, response)
+			local url = self.http_url .. "/" .. zip_filename
+			http.request(url, "GET", function(self, id, response)
 				if response.status == 200 or response.status == 304 then
 					mount_zip(self, message.name, message.priority, download_path, function(uri, path, status)
 						pprint(uri, path, get_status_string(status))
@@ -79,8 +63,7 @@ function on_message(self, message_id, message, sender)
 					end)
 
 				else
-					-- ERROR! Failed to download resource!
-					print("Failed to download resource: " .. message.resource_hash .. " from " .. self.http_url)
+					print("Failed to download archive: " .. download_path .. " from " .. url)
 				end
 			end, nil, nil, {path=download_path})
 		else
